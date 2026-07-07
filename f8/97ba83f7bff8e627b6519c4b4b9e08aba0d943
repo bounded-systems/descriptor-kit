@@ -1,0 +1,27 @@
+.gitignore
+  s_0fc5993828d911::t_9c66d6ddcec335 1-3
+LICENSE
+  s_0fc5993828d911::t_fa32b801c183f2 1-21
+package.json
+  s_0fc5993828d911::t_06aae951d86b3f 1-42
+src/schema.ts
+  s_0fc5993828d911::t_f515a7baec0336 1-50
+trellis.json
+  s_0fc5993828d911::t_ebeccbe5f979d1 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f897ba83f7bff8e627b6519c4b4b9e08aba0d943",
+  "prompts": {},
+  "sessions": {
+    "s_0fc5993828d911": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b8f8610-518c-426a-a829-2e7558d4f990",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
