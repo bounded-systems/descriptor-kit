@@ -1,23 +1,18 @@
+# The one workflow. Opts into org-standard behaviors; logic lives in the reusable
+# bounded-systems/.github/.github/workflows/repo-standard.yml (SHA-pinned actions).
 name: standard
 on:
   push:
     branches: [main]
   pull_request:
-
+permissions:
+  contents: read
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # descriptor pins claims to their last-touching commit — needs history
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - run: bun install --frozen-lockfile
-      - name: typecheck
-        run: bun run typecheck
-      - name: test
-        run: bun test
-      - name: descriptor drift-gate (dogfood)
-        run: bun run self:check
+  standard:
+    uses: bounded-systems/.github/.github/workflows/repo-standard.yml@d43c3280588ef05f4ead43426db1091d4cb8f520
+    with:
+      security: true
+      test: true
+      runtime: bun
+      # unshallow so `descriptor` can pin each claim to its last-touching commit
+      test-command: "bun install --frozen-lockfile && bun run typecheck && bun test && (git fetch --unshallow -q 2>/dev/null || true) && bun run self:check && bunx jsr publish --dry-run --allow-slow-types"
