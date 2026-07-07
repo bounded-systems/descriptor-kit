@@ -1,0 +1,42 @@
+{
+  "name": "@bounded-systems/descriptor-kit",
+  "version": "0.1.0",
+  "description": "Project a repo's trellis.json descriptor into git-pinned, drift-gated README blocks — one source, many surfaces.",
+  "bounded": {
+    "tagline": "One authored descriptor per repo, projected to every surface and gated on drift.",
+    "kind": "guest",
+    "facet": "tool",
+    "role": "projector",
+    "domain": "repo-identity"
+  },
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "descriptor": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "descriptor": "bun src/cli.ts",
+    "self:render": "bun src/cli.ts render .",
+    "self:check": "bun src/cli.ts check .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bounded-systems/descriptor-kit.git"
+  },
+  "homepage": "https://github.com/bounded-systems/descriptor-kit#readme",
+  "bugs": { "url": "https://github.com/bounded-systems/descriptor-kit/issues" },
+  "keywords": ["readme", "codegen", "drift", "trellis", "descriptor", "bounded-systems"],
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.6.0"
+  }
+}
