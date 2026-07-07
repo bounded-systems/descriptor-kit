@@ -7,6 +7,8 @@ export const ClaimSchema = z.object({
   claim: z.string().min(1),
   /** A test file, relative to the repo root. Must exist; pinned to its last-touching commit. */
   provenBy: z.string().min(1),
+  /** Optional detail rendered after the file, e.g. "→ `deniedDoors` in `mod.ts`". */
+  via: z.string().min(1).optional(),
 });
 export type Claim = z.infer<typeof ClaimSchema>;
 

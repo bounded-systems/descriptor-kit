@@ -44,7 +44,9 @@ function projectFit(_repo: string, n: TrellisNode): string {
 }
 
 function projectClaims(repo: string, n: TrellisNode): string {
-  const rows = n.descriptor.proof.claims.map((c) => `| ${c.claim} | \`${c.provenBy}\` | \`${pin(repo, c.provenBy)}\` |`);
+  const rows = n.descriptor.proof.claims.map(
+    (c) => `| ${c.claim} | \`${c.provenBy}\`${c.via ? " " + c.via : ""} | \`${pin(repo, c.provenBy)}\` |`,
+  );
   return [
     `Every row is generated from \`descriptor.proof\` in \`trellis.json\`: the \`Proven by\``,
     `file must exist, and \`Pinned at\` is its last-touching commit — so the table cannot`,
