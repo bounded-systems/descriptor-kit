@@ -1,26 +1,27 @@
 #!/usr/bin/env bun
 import { render, check, DescriptorError } from "./index.ts";
 
-function main() {
+async function main() {
   const mode = process.argv[2];
   const repo = process.argv[3] ?? ".";
   const runSuite = process.argv.includes("--run-suite");
 
   try {
     if (mode === "render") {
-      console.log(render(repo) ? "descriptor: README managed blocks re-rendered." : "descriptor: README already up to date.");
+      const changed = await render(repo);
+      console.log(changed.length ? `descriptor: rendered ${changed.join(", ")}` : "descriptor: all outputs up to date.");
       return;
     }
     if (mode === "check") {
-      const r = check(repo, { runSuite });
+      const r = await check(repo, { runSuite });
       if (r.ok) {
-        console.log("descriptor: ✓ no drift — README matches trellis.json.");
+        console.log("descriptor: ✓ no drift — generated files match trellis.json.");
         return;
       }
-      console.error("descriptor: ✗ DRIFT — README managed blocks are out of date (run `descriptor render`).");
-      for (const [line, disk, want] of r.diff) {
-        console.error(`   L${line}  on-disk: ${JSON.stringify(disk)}`);
-        console.error(`   L${line}  wanted : ${JSON.stringify(want)}`);
+      console.error(`descriptor: ✗ DRIFT in ${r.drifted.join(", ")} (run \`descriptor render\`).`);
+      for (const d of r.diff) {
+        console.error(`   ${d.path}:${d.line}  on-disk: ${JSON.stringify(d.onDisk)}`);
+        console.error(`   ${d.path}:${d.line}  wanted : ${JSON.stringify(d.wanted)}`);
       }
       process.exit(1);
     }
@@ -32,4 +33,4 @@ function main() {
   }
 }
 
-main();
+await main();

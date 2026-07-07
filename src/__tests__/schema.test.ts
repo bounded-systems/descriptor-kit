@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { parseNode } from "../schema.ts";
 import { check, DescriptorError } from "../index.ts";
+import { propState, renderStatus, renderValueProps, type ValueProp } from "../value-props.ts";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -38,12 +39,43 @@ test("parseNode rejects a missing tagline", () => {
   expect(() => parseNode({ ...validNode, descriptor: d })).toThrow(/tagline/);
 });
 
-test("parseNode requires at least one claim", () => {
-  const d = { ...validNode.descriptor, proof: { suite: "bun test", claims: [] } };
-  expect(() => parseNode({ ...validNode, descriptor: d })).toThrow(/claims/);
+test("parseNode requires either claims or valueProps in proof", () => {
+  const d = { ...validNode.descriptor, proof: { suite: "bun test" } };
+  expect(() => parseNode({ ...validNode, descriptor: d })).toThrow(/claims.*valueProps|valueProps/);
 });
 
-test("check throws when a repo has no trellis.json", () => {
+test("check rejects when a repo has no trellis.json", async () => {
   const dir = mkdtempSync(join(tmpdir(), "descriptor-"));
-  expect(() => check(dir)).toThrow(DescriptorError);
+  await expect(check(dir)).rejects.toThrow(DescriptorError);
+});
+
+// ── the executed value-prop model (prx-parity) ───────────────────────────────
+const props: ValueProp[] = [
+  { claim: "A", whyNot: "x", forcing: [{ name: "live", check: () => true, exercises: ["a.ts:f"] }] },
+  { claim: "B", whyNot: "y", forcing: [{ name: "ev", evidence: "PR #1", exercises: ["b.ts:g"] }] },
+  { claim: "C", whyNot: "z", forcing: [{ name: "todo", pending: "later" }] },
+];
+
+test("propState: a live check backs, a pending does not", () => {
+  expect(propState(props[0]).backed).toBe(true);
+  expect(propState(props[2]).backed).toBe(false);
+});
+
+test("propState: a FAILING live check is not backed (cannot overclaim)", () => {
+  const failing: ValueProp = { claim: "D", whyNot: "", forcing: [{ name: "nope", check: () => false, exercises: [] }] };
+  expect(propState(failing).backed).toBe(false);
+});
+
+test("renderStatus rolls up backed / evidence / learning", () => {
+  const s = renderStatus(props, "example");
+  expect(s).toContain("1 of 3 value props fully backed");
+  expect(s).toContain("_(evidence-backed)_");
+  expect(s).toContain("later");
+});
+
+test("renderValueProps marks BACKED, learning goals, and the exercises map", () => {
+  const d = renderValueProps(props, "example");
+  expect(d).toContain("— BACKED");
+  expect(d).toContain("[learning goal]");
+  expect(d).toContain("exercises: a.ts:f");
 });

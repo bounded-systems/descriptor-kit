@@ -1,10 +1,11 @@
 // descriptor-kit — project a repo's trellis.json `descriptor` into managed README
 // regions, git-pinned and drift-gated. One source, many surfaces; the README's
 // facts cannot drift from the code, because CI regenerates and diffs them.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
+import { join, resolve, dirname } from "node:path";
 import { parseNode, type TrellisNode } from "./schema.ts";
+import { loadValueProps, renderValueProps, renderStatus } from "./value-props.ts";
 
 const STATUS_BADGE = {
   Enforced: "🟢 **Enforced** — proven against the running code.",
@@ -44,7 +45,11 @@ function projectFit(_repo: string, n: TrellisNode): string {
 }
 
 function projectClaims(repo: string, n: TrellisNode): string {
-  const rows = n.descriptor.proof.claims.map(
+  const claims = n.descriptor.proof.claims;
+  if (!claims || claims.length === 0) {
+    throw new DescriptorError(`README has a "claims" block but trellis.json proof has no \`claims\` (uses \`valueProps\`?)`);
+  }
+  const rows = claims.map(
     (c) => `| ${c.claim} | \`${c.provenBy}\`${c.via ? " " + c.via : ""} | \`${pin(repo, c.provenBy)}\` |`,
   );
   return [
@@ -99,10 +104,9 @@ export function loadNode(repo: string): TrellisNode {
   return parseNode(JSON.parse(readFileSync(p, "utf8")));
 }
 
-/** Project every managed block that the README actually declares. Blocks the
- *  README doesn't use are skipped, so a repo adopts only the regions it wants. */
-export function project(repo: string): string {
-  const node = loadNode(repo);
+/** The README with every managed block it declares filled. Blocks the README
+ *  doesn't use are skipped, so a repo adopts only the regions it wants. */
+export function projectReadme(repo: string, node: TrellisNode): string {
   let md = readFileSync(join(repo, "README.md"), "utf8");
   for (const [name, fn] of Object.entries(BLOCKS)) {
     if (md.includes(`<!-- descriptor:${name} start -->`)) md = fillBlock(md, name, fn(repo, node));
@@ -110,32 +114,59 @@ export function project(repo: string): string {
   return md;
 }
 
-export function render(repo: string): boolean {
-  const projected = project(repo);
-  const path = join(repo, "README.md");
-  const changed = projected !== readFileSync(path, "utf8");
-  if (changed) writeFileSync(path, projected);
+export interface Output { path: string; content: string; }
+
+/** Every file descriptor-kit generates for this repo: the README, plus
+ *  docs/value-props.md + STATUS.md when the descriptor declares a `valueProps`
+ *  module (prx-parity — the checks are executed, so the status can't overclaim). */
+export async function projectAll(repo: string): Promise<Output[]> {
+  const node = loadNode(repo);
+  const outputs: Output[] = [{ path: "README.md", content: projectReadme(repo, node) }];
+  const vpPath = node.descriptor.proof.valueProps;
+  if (vpPath) {
+    const props = await loadValueProps(resolve(repo, vpPath));
+    outputs.push({ path: "docs/value-props.md", content: renderValueProps(props, node.node) });
+    outputs.push({ path: "STATUS.md", content: renderStatus(props, node.node) });
+  }
+  return outputs;
+}
+
+export async function render(repo: string): Promise<string[]> {
+  const changed: string[] = [];
+  for (const o of await projectAll(repo)) {
+    const abs = join(repo, o.path);
+    const cur = existsSync(abs) ? readFileSync(abs, "utf8") : null;
+    if (cur !== o.content) {
+      mkdirSync(dirname(abs), { recursive: true });
+      writeFileSync(abs, o.content);
+      changed.push(o.path);
+    }
+  }
   return changed;
 }
 
-export interface CheckResult { ok: boolean; drift: boolean; diff: [number, string, string][]; }
+export interface Drift { path: string; line: number; onDisk: string; wanted: string; }
+export interface CheckResult { ok: boolean; drifted: string[]; diff: Drift[]; }
 
-export function check(repo: string, opts: { runSuite?: boolean } = {}): CheckResult {
+export async function check(repo: string, opts: { runSuite?: boolean } = {}): Promise<CheckResult> {
   const node = loadNode(repo);
-  const projected = project(repo);
-  const current = readFileSync(join(repo, "README.md"), "utf8");
-  const diff: [number, string, string][] = [];
-  if (projected !== current) {
-    const a = current.split("\n");
-    const b = projected.split("\n");
-    for (let k = 0; k < Math.max(a.length, b.length) && diff.length < 6; k++) {
-      if (a[k] !== b[k]) diff.push([k + 1, a[k] ?? "", b[k] ?? ""]);
+  const diff: Drift[] = [];
+  const drifted: string[] = [];
+  for (const o of await projectAll(repo)) {
+    const abs = join(repo, o.path);
+    const cur = existsSync(abs) ? readFileSync(abs, "utf8") : "";
+    if (cur !== o.content) {
+      drifted.push(o.path);
+      const a = cur.split("\n"), b = o.content.split("\n");
+      for (let k = 0; k < Math.max(a.length, b.length) && diff.length < 8; k++) {
+        if (a[k] !== b[k]) diff.push({ path: o.path, line: k + 1, onDisk: a[k] ?? "", wanted: b[k] ?? "" });
+      }
     }
   }
-  // Optional teeth: a claim isn't just "the file exists" — the suite must be green.
-  if (opts.runSuite) {
+  // Optional teeth: also run the suite, so a claim can't cite a red test.
+  if (opts.runSuite && node.descriptor.proof.suite) {
     const [cmd, ...args] = node.descriptor.proof.suite.split(/\s+/);
-    execFileSync(cmd, args, { cwd: repo, stdio: "inherit" }); // throws (non-zero) → check fails
+    execFileSync(cmd, args, { cwd: repo, stdio: "inherit" });
   }
-  return { ok: diff.length === 0, drift: diff.length > 0, diff };
+  return { ok: drifted.length === 0, drifted, diff };
 }

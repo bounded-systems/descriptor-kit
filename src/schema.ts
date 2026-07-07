@@ -20,7 +20,18 @@ export const DescriptorSchema = z.object({
   what: z.string().min(1),
   role: z.object({ hotel: z.string(), kind: z.string() }),
   status: StatusSchema,
-  proof: z.object({ suite: z.string().min(1), claims: z.array(ClaimSchema).min(1) }),
+  proof: z
+    .object({
+      suite: z.string().min(1),
+      /** The file-pin model: a claim ↔ a test file, git-pinned. */
+      claims: z.array(ClaimSchema).optional(),
+      /** The executed model (prx-parity): path to a module exporting VALUE_PROPS;
+       *  descriptor-kit imports it, runs the checks, and generates value-props.md + STATUS.md. */
+      valueProps: z.string().min(1).optional(),
+    })
+    .refine((p) => (p.claims && p.claims.length > 0) || p.valueProps, {
+      message: "proof must have a non-empty `claims` array or a `valueProps` module path",
+    }),
   positioning: z.string().min(1),
   links: z.record(z.string(), z.string().url().or(z.string().min(1))),
 });

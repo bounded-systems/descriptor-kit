@@ -17,7 +17,8 @@
       "suite": "bun test",
       "claims": [
         { "claim": "The descriptor schema accepts well-formed nodes and rejects bad status / missing tagline / empty claims", "provenBy": "src/__tests__/schema.test.ts" }
-      ]
+      ],
+      "valueProps": "./src/value_props.ts"
     },
     "positioning": "generate-and-gate for repo identity — the drift cure prx proved, made shared",
     "links": {

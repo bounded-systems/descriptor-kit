@@ -1,6 +1,6 @@
 {
   "name": "@bounded-systems/descriptor-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Project a repo's trellis.json descriptor into git-pinned, drift-gated README blocks — one source, many surfaces.",
   "bounded": {
     "tagline": "One authored descriptor per repo, projected to every surface and gated on drift.",
@@ -30,8 +30,17 @@
     "url": "git+https://github.com/bounded-systems/descriptor-kit.git"
   },
   "homepage": "https://github.com/bounded-systems/descriptor-kit#readme",
-  "bugs": { "url": "https://github.com/bounded-systems/descriptor-kit/issues" },
-  "keywords": ["readme", "codegen", "drift", "trellis", "descriptor", "bounded-systems"],
+  "bugs": {
+    "url": "https://github.com/bounded-systems/descriptor-kit/issues"
+  },
+  "keywords": [
+    "readme",
+    "codegen",
+    "drift",
+    "trellis",
+    "descriptor",
+    "bounded-systems"
+  ],
   "dependencies": {
     "zod": "^4.4.3"
   },
