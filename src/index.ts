@@ -71,6 +71,12 @@ const BLOCKS: Record<string, (repo: string, n: TrellisNode) => string> = {
   links: projectLinks,
 };
 
+function count(hay: string, needle: string): number {
+  let n = 0;
+  for (let i = hay.indexOf(needle); i !== -1; i = hay.indexOf(needle, i + needle.length)) n++;
+  return n;
+}
+
 function fillBlock(md: string, name: string, body: string): string {
   const start = `<!-- descriptor:${name} start -->`;
   const end = `<!-- descriptor:${name} end -->`;
@@ -78,6 +84,9 @@ function fillBlock(md: string, name: string, body: string): string {
   const j = md.indexOf(end);
   if (i === -1 || j === -1 || j < i) {
     throw new DescriptorError(`README.md is missing managed-block markers for "${name}" (${start} … ${end})`);
+  }
+  if (count(md, start) > 1 || count(md, end) > 1) {
+    throw new DescriptorError(`README.md has duplicate "${name}" markers — a managed block must appear exactly once (are they in a docs example? use a placeholder name).`);
   }
   return md.slice(0, i) + start + "\n" + body + "\n" + end + md.slice(j + end.length);
 }
