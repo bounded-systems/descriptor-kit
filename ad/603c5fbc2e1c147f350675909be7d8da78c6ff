@@ -1,0 +1,41 @@
+src/cli.ts
+  s_e3fff2f6060e6c::t_eac2b04c17682f 4,11-12,16,18,21-24,36
+src/__tests__/schema.test.ts
+  s_e3fff2f6060e6c::t_cc552bb4eab365 4,42-44,47,49-80
+src/schema.ts
+  s_e3fff2f6060e6c::t_9212a4c1247f16 23-34
+src/value_props.ts
+  s_e3fff2f6060e6c::t_d7e7b696489a38 1-47
+src/value-props.ts
+  s_e3fff2f6060e6c::t_c7441a682faf5b 1-100
+src/index.ts
+  s_e3fff2f6060e6c::t_7d25eade44a8d6 107-109,117-144,148-149,151,153-163,166-167,169,171
+  s_e3fff2f6060e6c::t_1c058490c2a5c5 48-52
+  s_e3fff2f6060e6c::t_d9ebacf2a46c8f 4,6,8
+trellis.json
+  s_e3fff2f6060e6c::t_23753d747b9701 20-21
+STATUS.md
+  s_e3fff2f6060e6c::t_9b4a7f86a3bed4 1-16
+docs/value-props.md
+  s_e3fff2f6060e6c::t_f6b608d900f1b6 1-27
+jsr.json
+  s_e3fff2f6060e6c::t_e9d7e3fba80fa6 3,12-15
+package.json
+  s_e3fff2f6060e6c::t_4de7781fccbb49 3,33-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "ad603c5fbc2e1c147f350675909be7d8da78c6ff",
+  "prompts": {},
+  "sessions": {
+    "s_e3fff2f6060e6c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4b45e8d3-21a6-47bd-bcd5-77e2c160db83",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
