@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { parseNode } from "../schema.ts";
 import { check, DescriptorError } from "../index.ts";
 import { isValuePropBacked, renderStatus, renderValueProps, type ValueProp } from "../value-props.ts";
+import { renderOrgMap, renderLattice, type AggNode } from "../aggregate.ts";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -78,4 +79,25 @@ test("renderValueProps marks BACKED, learning goals, and the exercises map", () 
   expect(d).toContain("— BACKED");
   expect(d).toContain("[learning goal]");
   expect(d).toContain("exercises: a.ts:f");
+});
+
+// ── the aggregate projection (org describers from every trellis.json) ────────
+const aggNodes: AggNode[] = [
+  { node: "a", visibility: "public", provides: [{ type: "x-wire" }], consumes: [], descriptor: { tagline: "does A", role: { hotel: "room-sdk", kind: "library" }, status: "Partial" } },
+  { node: "b", visibility: "public", provides: [], consumes: [{ type: "x-wire" }] }, // bare node, no descriptor yet
+];
+
+test("renderOrgMap lists descriptor nodes and flags bare ones", () => {
+  const md = renderOrgMap(aggNodes);
+  expect(md).toContain("does A");
+  expect(md).toContain("🟡 Partial");
+  expect(md).toContain("1 with a descriptor, 1 bare");
+  expect(md).toContain("Bare nodes");
+});
+
+test("renderLattice maps provides→consumes and flags an unprovided consumed type", () => {
+  const md = renderLattice(aggNodes);
+  expect(md).toMatch(/`x-wire`.*`a`.*`b`/); // provided by a, consumed by b
+  const solo = renderLattice([{ node: "c", visibility: "public", provides: [], consumes: [{ type: "orphan" }] }]);
+  expect(solo).toContain("**unprovided**");
 });

@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import { render, check, DescriptorError } from "./index.ts";
+import { collectNodes, renderOrgMap, renderLattice } from "./aggregate.ts";
 
 async function main() {
   const mode = process.argv[2];
@@ -7,6 +8,11 @@ async function main() {
   const runSuite = process.argv.includes("--run-suite");
 
   try {
+    if (mode === "aggregate") {
+      const nodes = collectNodes(repo);
+      process.stdout.write(process.argv.includes("--lattice") ? renderLattice(nodes) : renderOrgMap(nodes));
+      return;
+    }
     if (mode === "render") {
       const changed = await render(repo);
       console.log(changed.length ? `descriptor: rendered ${changed.join(", ")}` : "descriptor: all outputs up to date.");

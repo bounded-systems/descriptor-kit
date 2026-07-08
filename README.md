@@ -68,7 +68,7 @@ iff the test content changes, so the table can't cite a missing test or a stale 
 
 | Claim | Proven by | Pinned at |
 |---|---|---|
-| The descriptor schema accepts well-formed nodes and rejects bad status / missing tagline / empty claims | `src/__tests__/schema.test.ts` | `435f190d2504` |
+| The descriptor schema accepts well-formed nodes and rejects bad status / missing tagline / empty claims | `src/__tests__/schema.test.ts` | `7b0999095f66` |
 
 ```sh
 bun test
