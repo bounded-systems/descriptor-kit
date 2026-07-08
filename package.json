@@ -1,6 +1,6 @@
 {
   "name": "@bounded-systems/descriptor-kit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Project a repo's trellis.json descriptor into git-pinned, drift-gated README blocks — one source, many surfaces.",
   "bounded": {
     "tagline": "One authored descriptor per repo, projected to every surface and gated on drift.",

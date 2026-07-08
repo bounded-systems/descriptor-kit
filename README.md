@@ -63,12 +63,12 @@ the render outright. Stale pins and phantom claims become structurally impossibl
 
 <!-- descriptor:claims start -->
 Every row is generated from `descriptor.proof` in `trellis.json`: the `Proven by`
-file must exist, and `Pinned at` is its last-touching commit — so the table cannot
-cite a test that isn't there, and a pin cannot go stale.
+file must exist, and `Pinned at` is its content digest (git blob hash) — it changes
+iff the test content changes, so the table can't cite a missing test or a stale one.
 
 | Claim | Proven by | Pinned at |
 |---|---|---|
-| The descriptor schema accepts well-formed nodes and rejects bad status / missing tagline / empty claims | `src/__tests__/schema.test.ts` | `ad603c5` |
+| The descriptor schema accepts well-formed nodes and rejects bad status / missing tagline / empty claims | `src/__tests__/schema.test.ts` | `435f190d2504` |
 
 ```sh
 bun test

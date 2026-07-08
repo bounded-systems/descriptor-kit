@@ -15,15 +15,18 @@ const STATUS_BADGE = {
 
 export class DescriptorError extends Error {}
 
-/** The commit that last touched a proof file — so a pin can never go stale, and a
- *  claim for a file that doesn't exist is impossible to write. */
+/** The content digest (git blob hash) of a proof file — NOT its last-touching
+ *  commit. This is stable across commits, knowable from the working tree before
+ *  commit, and changes iff the file content changes. So committing a proof file
+ *  and the README together never desyncs the pin (which a commit-SHA pin does,
+ *  lagging by one commit), and a claim for a missing file is still impossible. */
 function pin(repo: string, file: string): string {
   if (!existsSync(join(repo, file))) {
     throw new DescriptorError(`claim is "proven by" a file that does not exist: ${file}`);
   }
-  const sha = execFileSync("git", ["-C", repo, "log", "-1", "--format=%h", "--", file], { encoding: "utf8" }).trim();
-  if (!sha) throw new DescriptorError(`proof file has no git history (cannot pin): ${file}`);
-  return sha;
+  const sha = execFileSync("git", ["-C", repo, "hash-object", file], { encoding: "utf8" }).trim();
+  if (!sha) throw new DescriptorError(`could not hash proof file: ${file}`);
+  return sha.slice(0, 12);
 }
 
 // ── block projectors — each fills one <!-- descriptor:NAME --> region ──────────
@@ -54,8 +57,8 @@ function projectClaims(repo: string, n: TrellisNode): string {
   );
   return [
     `Every row is generated from \`descriptor.proof\` in \`trellis.json\`: the \`Proven by\``,
-    `file must exist, and \`Pinned at\` is its last-touching commit — so the table cannot`,
-    `cite a test that isn't there, and a pin cannot go stale.`,
+    `file must exist, and \`Pinned at\` is its content digest (git blob hash) — it changes`,
+    `iff the test content changes, so the table can't cite a missing test or a stale one.`,
     ``,
     `| Claim | Proven by | Pinned at |`,
     `|---|---|---|`,
