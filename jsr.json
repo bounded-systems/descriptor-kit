@@ -1,6 +1,6 @@
 {
   "name": "@bounded-systems/descriptor-kit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema.ts"

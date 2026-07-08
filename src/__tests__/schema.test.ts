@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { parseNode } from "../schema.ts";
 import { check, DescriptorError } from "../index.ts";
-import { propState, renderStatus, renderValueProps, type ValueProp } from "../value-props.ts";
+import { isValuePropBacked, renderStatus, renderValueProps, type ValueProp } from "../value-props.ts";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -56,14 +56,14 @@ const props: ValueProp[] = [
   { claim: "C", whyNot: "z", forcing: [{ name: "todo", pending: "later" }] },
 ];
 
-test("propState: a live check backs, a pending does not", () => {
-  expect(propState(props[0]).backed).toBe(true);
-  expect(propState(props[2]).backed).toBe(false);
+test("isValuePropBacked: a live check backs, a pending does not", () => {
+  expect(isValuePropBacked(props[0])).toBe(true);
+  expect(isValuePropBacked(props[2])).toBe(false);
 });
 
-test("propState: a FAILING live check is not backed (cannot overclaim)", () => {
+test("isValuePropBacked: a FAILING live check is not backed (cannot overclaim)", () => {
   const failing: ValueProp = { claim: "D", whyNot: "", forcing: [{ name: "nope", check: () => false, exercises: [] }] };
-  expect(propState(failing).backed).toBe(false);
+  expect(isValuePropBacked(failing)).toBe(false);
 });
 
 test("renderStatus rolls up backed / evidence / learning", () => {
