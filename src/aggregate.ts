@@ -52,13 +52,13 @@ const banner =
 
 const repoLink = (n: AggNode) => `[\`${n.node}\`](https://github.com/bounded-systems/${n.node})`;
 
-/** org-map.md — one row per node, drawn from its descriptor (bare nodes flagged). */
-export function renderOrgMap(nodes: AggNode[]): string {
+/** org-map.md — one row per node, drawn from its descriptor (bare nodes flagged).
+ *  `heading:false` omits the H1, for embedding as a managed block in a larger doc. */
+export function renderOrgMap(nodes: AggNode[], opts: { heading?: boolean } = {}): string {
   const withDesc = nodes.filter((n) => n.descriptor?.tagline);
   const bare = nodes.filter((n) => !n.descriptor?.tagline);
   const lines: string[] = [
-    "# bounded-systems — org map",
-    "",
+    ...(opts.heading === false ? [] : ["# bounded-systems — org map", ""]),
     banner,
     "",
     `**${nodes.length} nodes** — ${withDesc.length} with a descriptor, ${bare.length} bare (node declared, descriptor not yet authored).`,
@@ -81,15 +81,19 @@ export function renderOrgMap(nodes: AggNode[]): string {
 }
 
 /** The contract lattice — every provides→consumes edge, grouped by contract type. */
-export function renderLattice(nodes: AggNode[]): string {
+export function renderLattice(nodes: AggNode[], opts: { heading?: boolean } = {}): string {
   const providers = new Map<string, string[]>();
   const consumers = new Map<string, string[]>();
+  const push = (m: Map<string, string[]>, k: string, v: string) => m.set(k, [...(m.get(k) ?? []), v]);
   for (const n of nodes) {
-    for (const p of n.provides) (providers.get(p.type) ?? providers.set(p.type, []).get(p.type)!).push(n.node);
-    for (const c of n.consumes) (consumers.get(c.type) ?? consumers.set(c.type, []).get(c.type)!).push(n.node);
+    for (const p of n.provides) push(providers, p.type, n.node);
+    for (const c of n.consumes) push(consumers, c.type, n.node);
   }
   const types = [...new Set([...providers.keys(), ...consumers.keys()])].sort();
-  const lines: string[] = ["# bounded-systems — contract lattice", "", banner, "", "| Contract type | Provided by | Consumed by |", "|---|---|---|"];
+  const lines: string[] = [
+    ...(opts.heading === false ? [] : ["# bounded-systems — contract lattice", ""]),
+    banner, "", "| Contract type | Provided by | Consumed by |", "|---|---|---|",
+  ];
   for (const t of types) {
     const prov = (providers.get(t) ?? []).map((r) => `\`${r}\``).join(", ") || "— **unprovided**";
     const cons = (consumers.get(t) ?? []).map((r) => `\`${r}\``).join(", ") || "—";

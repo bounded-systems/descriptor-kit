@@ -87,7 +87,7 @@ function count(hay: string, needle: string): number {
   return n;
 }
 
-function fillBlock(md: string, name: string, body: string): string {
+export function fillBlock(md: string, name: string, body: string): string {
   const start = `<!-- descriptor:${name} start -->`;
   const end = `<!-- descriptor:${name} end -->`;
   const i = md.indexOf(start);
