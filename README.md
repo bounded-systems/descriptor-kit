@@ -68,7 +68,7 @@ cite a test that isn't there, and a pin cannot go stale.
 
 | Claim | Proven by | Pinned at |
 |---|---|---|
-| The descriptor schema accepts well-formed nodes and rejects bad status / missing tagline / empty claims | `src/__tests__/schema.test.ts` | `f897ba8` |
+| The descriptor schema accepts well-formed nodes and rejects bad status / missing tagline / empty claims | `src/__tests__/schema.test.ts` | `ad603c5` |
 
 ```sh
 bun test
