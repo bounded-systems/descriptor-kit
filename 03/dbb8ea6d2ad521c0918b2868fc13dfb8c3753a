@@ -1,0 +1,30 @@
+src/value-props.ts
+  s_e3fff2f6060e6c::t_f24706038c2ada 1-6,19,21-22,24,27-29,32-73,75,77,79-86,88-92,94-98,103-110,112-118,120-130,132-133
+src/__tests__/schema.test.ts
+  s_e3fff2f6060e6c::t_a7231abf5785a4 4
+  s_e3fff2f6060e6c::t_cdffc89b4074c4 59-61,64,66
+STATUS.md
+  s_e3fff2f6060e6c::t_37b299a86bc54c 3,5,7,16-19
+docs/value-props.md
+  s_e3fff2f6060e6c::t_d6307d96938456 3,7-8,24,28-35
+jsr.json
+  s_e3fff2f6060e6c::t_1250e80ea65971 3
+package.json
+  s_e3fff2f6060e6c::t_679400a662951c 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "03dbb8ea6d2ad521c0918b2868fc13dfb8c3753a",
+  "prompts": {},
+  "sessions": {
+    "s_e3fff2f6060e6c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4b45e8d3-21a6-47bd-bcd5-77e2c160db83",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
